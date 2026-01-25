@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contests - CampusCode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: { 500: '#1E4A7A' } } } } }
+    </script>
+</head>
+<body class="bg-gray-50 min-h-screen font-sans flex">
+    
+    <aside class="w-64 bg-white shadow-sm border-r p-4 hidden md:block">
+        <h1 class="text-2xl font-bold text-primary-500 mb-6">CampusCode</h1>
+        <nav class="space-y-1">
+            <a href="{% url 'dashboard' %}" class="block p-3 rounded hover:bg-gray-100"><i class="fas fa-home w-6"></i> Home</a>
+            <a href="{% url 'problems' %}" class="block p-3 rounded hover:bg-gray-100"><i class="fas fa-tasks w-6"></i> Problems</a>
+            <a href="{% url 'contests' %}" class="block p-3 rounded bg-blue-100 text-primary-500"><i class="fas fa-trophy w-6"></i> Contests</a>
+        </nav>
+    </aside>
+
+    <div class="flex-1 p-8 overflow-y-auto">
+        <div class="bg-primary-500 rounded-2xl p-8 mb-8 text-white shadow-lg relative overflow-hidden">
+            <div class="relative z-10">
+                <h2 class="text-3xl font-bold mb-2">Weekly Contest 🏆</h2>
+                <p class="opacity-90">Compete with your peers and improve your rating!</p>
+            </div>
+            <i class="fas fa-trophy absolute -right-4 -bottom-4 text-9xl opacity-10"></i>
+        </div>
+
+        <h3 class="text-xl font-bold mb-4">Upcoming & Live Contests</h3>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {% for contest in contests %}
+            <div class="bg-white rounded-xl shadow-sm border p-6 hover:shadow-md transition">
+                <div class="flex justify-between items-start mb-4">
+                    {% if contest.status == 'Live' %}
+                        <span class="bg-red-100 text-red-600 px-2 py-1 rounded text-xs font-bold animate-pulse">● LIVE</span>
+                    {% elif contest.status == 'Upcoming' %}
+                        <span class="bg-blue-100 text-blue-600 px-2 py-1 rounded text-xs font-bold">UPCOMING</span>
+                    {% else %}
+                        <span class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-bold">PAST</span>
+                    {% endif %}
+                    <i class="fas fa-code text-gray-300 text-xl"></i>
+                </div>
+                
+                <h3 class="font-bold text-lg mb-2">{{ contest.title }}</h3>
+                <p class="text-sm text-gray-500 mb-4 line-clamp-2">{{ contest.description }}</p>
+                
+                <div class="text-sm text-gray-600 space-y-2 mb-6">
+                    <div class="flex items-center gap-2"><i class="far fa-calendar"></i> {{ contest.start_time|date:"M d, Y" }}</div>
+                    <div class="flex items-center gap-2"><i class="far fa-clock"></i> {{ contest.duration }}</div>
+                </div>
+
+                <a href="{% url 'contest_overview' id=contest.id %}" class="block w-full bg-primary-500 text-white text-center py-2 rounded hover:bg-blue-700 transition">
+                    View Details
+                </a>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-10 text-gray-500">
+                No contests found.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Solve: {{ problem.title }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = { darkMode: 'class', theme: { extend: { colors: { primary: { 500: '#1E4A7A' } } } } }
+    </script>
+</head>
+<body class="bg-gray-100 h-screen flex flex-col">
+    <nav class="bg-white border-b px-6 py-3 flex justify-between items-center">
+        <div class="flex items-center gap-4">
+            <a href="{% url 'problems' %}" class="text-gray-500 hover:text-black"><i class="fas fa-chevron-left"></i></a>
+            <h1 class="font-bold text-lg">{{ problem.title }}</h1>
+        </div>
+        <div class="flex gap-2">
+            <button class="bg-green-600 text-white px-4 py-1.5 rounded hover:bg-green-700"><i class="fas fa-play mr-2"></i> Run</button>
+            <button class="bg-blue-600 text-white px-4 py-1.5 rounded hover:bg-blue-700">Submit</button>
+        </div>
+    </nav>
+
+    <div class="flex-1 flex overflow-hidden">
+        <div class="w-1/2 p-6 overflow-y-auto bg-white border-r">
+            <h2 class="text-xl font-bold mb-4">Description</h2>
+            <div class="prose max-w-none text-gray-700">
+                <p>{{ problem.statement }}</p>
+                
+                <h3 class="font-bold mt-6">Input Format</h3>
+                <p>{{ problem.input_fmt }}</p>
+
+                <h3 class="font-bold mt-4">Output Format</h3>
+                <p>{{ problem.output_fmt }}</p>
+
+                <h3 class="font-bold mt-4">Constraints</h3>
+                <code class="bg-gray-100 px-2 py-1 rounded block mt-1">{{ problem.constraints }}</code>
+
+                <div class="mt-6">
+                    <h4 class="font-bold">Sample Input</h4>
+                    <pre class="bg-gray-100 p-3 rounded mt-1">{{ problem.sample_input }}</pre>
+                </div>
+                <div class="mt-4">
+                    <h4 class="font-bold">Sample Output</h4>
+                    <pre class="bg-gray-100 p-3 rounded mt-1">{{ problem.sample_output }}</pre>
+                </div>
+            </div>
+        </div>
+
+        <div class="w-1/2 bg-[#1e1e1e] text-gray-300 p-4 font-mono">
+            <div class="mb-2 text-sm text-gray-500">// Type your code here</div>
+            <textarea class="w-full h-full bg-transparent outline-none resize-none" spellcheck="false">
+# Write your solution here
+def solve():
+    pass
+            </textarea>
+        </div>
+    </div>
+</body>
+</html>

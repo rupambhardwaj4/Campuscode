@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - CampusCode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Poppins", "sans-serif"] },
+                    colors: { primary: { 500: "#1E4A7A", 600: "#163a63" } },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans flex text-gray-800">
+
+    <aside class="w-64 bg-white shadow-sm border-r flex flex-col h-screen sticky top-0">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-primary-500">CampusCode</h1>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 mt-2">
+            <a href="{% url 'dashboard' %}" class="flex items-center p-3 rounded-lg bg-blue-50 text-primary-500 font-bold">
+                <i class="fas fa-home w-8 text-center"></i> Dashboard
+            </a>
+            <a href="{% url 'problems' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-code w-8 text-center"></i> Problems
+            </a>
+            <a href="{% url 'contests' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-trophy w-8 text-center"></i> Contests
+            </a>
+            <a href="{% url 'forum' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-comments w-8 text-center"></i> Forum
+            </a>
+            <a href="{% url 'stats' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-chart-line w-8 text-center"></i> Reports
+            </a>
+        </nav>
+
+        <div class="p-4 border-t">
+            <a href="{% url 'logout' %}" class="flex items-center p-3 rounded-lg text-red-500 hover:bg-red-50 transition w-full font-bold">
+                <i class="fas fa-sign-out-alt w-8 text-center"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-10">
+            <h2 class="text-xl font-bold text-gray-700">Student Dashboard</h2>
+            
+            <div class="flex items-center gap-6">
+                <div class="relative cursor-pointer">
+                    <i class="far fa-bell text-xl text-gray-500"></i>
+                    <span class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </div>
+
+                <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition" id="headerProfileBtn">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-800">{{ user.first_name }}</p>
+                        <p class="text-xs text-gray-500">Student</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-white">
+                        {{ user.first_name|slice:":1"|upper }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-8 bg-gray-50">
+            <div class="mb-8">
+                <h1 class="text-3xl font-bold text-gray-800">Welcome back, {{ user.first_name }}! 👋</h1>
+                <p class="text-gray-500 mt-1">Here's your daily progress report.</p>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Streak</p>
+                        <p class="text-3xl font-bold text-gray-800 mt-1">{{ user.streak }} Days</p>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-orange-100 text-orange-500 flex items-center justify-center text-xl">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border flex items-center justify-between">
+                    <div>
+                        <p class="text-gray-500 text-sm font-bold uppercase">Global Rank</p>
+                        <div class="flex items-baseline gap-2 mt-1">
+                            <p class="text-3xl font-bold text-gray-800">#{{ user.global_rank }}</p>
+                            <span class="text-xs text-green-500 font-bold bg-green-100 px-2 py-0.5 rounded-full">Top 10%</span>
+                        </div>
+                    </div>
+                    <div class="h-12 w-12 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center text-xl">
+                        <i class="fas fa-globe"></i>
+                    </div>
+                </div>
+
+                <div class="bg-white p-6 rounded-2xl shadow-sm border">
+                    <div class="flex justify-between items-center mb-2">
+                        <p class="text-gray-500 text-sm font-bold uppercase">Level {{ user.level }}</p>
+                        <p class="text-primary-500 font-bold text-sm">{{ user.xp }} XP</p>
+                    </div>
+                    <div class="w-full bg-gray-200 rounded-full h-3">
+                        <div class="bg-primary-500 h-3 rounded-full" style="width: {{ user.xp_percentage }}%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-2xl shadow-sm border p-8 text-center">
+                <div class="inline-block p-4 rounded-full bg-gray-100 mb-4">
+                    <i class="fas fa-history text-2xl text-gray-400"></i>
+                </div>
+                <h3 class="text-lg font-bold text-gray-800">No Recent Activity</h3>
+                <p class="text-gray-500 mb-6">Start solving problems to see your history here.</p>
+                <a href="{% url 'problems' %}" class="bg-primary-500 text-white px-6 py-2 rounded-lg hover:bg-primary-600 transition shadow-lg">
+                    Start Solving
+                </a>
+            </div>
+        </main>
+    </div>
+
+    <div id="profileOverlay" class="fixed inset-0 bg-black/50 z-50 hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col transform transition-transform" id="profilePanel">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+                <button id="closeProfileOverlay" class="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center mb-8">
+                <div class="h-24 w-24 rounded-full bg-primary-500 text-white flex items-center justify-center text-3xl font-bold mb-4">
+                    {{ user.first_name|slice:":1"|upper }}
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">{{ user.first_name }}</h3>
+                <p class="text-gray-500">{{ user.email }}</p>
+                <span class="mt-2 px-3 py-1 bg-blue-100 text-blue-600 text-xs font-bold rounded-full">{{ user.role }}</span>
+            </div>
+
+            <div class="space-y-2 flex-1">
+                <a href="{% url 'profile' %}" class="flex items-center gap-4 p-4 rounded-xl hover:bg-gray-50 transition">
+                    <i class="fas fa-user text-blue-500 text-xl"></i>
+                    <span class="font-medium text-gray-700">Edit Profile</span>
+                </a>
+            </div>
+
+            <div class="border-t pt-6">
+                <a href="{% url 'logout' %}" class="flex items-center justify-center gap-2 w-full p-4 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition font-bold">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("headerProfileBtn");
+            const overlay = document.getElementById("profileOverlay");
+            const close = document.getElementById("closeProfileOverlay");
+
+            if(btn && overlay && close) {
+                // Open
+                btn.addEventListener("click", () => {
+                    overlay.classList.remove("hidden");
+                });
+                
+                // Close Button
+                close.addEventListener("click", () => {
+                    overlay.classList.add("hidden");
+                });
+
+                // Close on Outside Click
+                overlay.addEventListener("click", (e) => {
+                    if(e.target === overlay) {
+                        overlay.classList.add("hidden");
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

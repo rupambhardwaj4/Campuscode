@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Edit Profile - CampusCode</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: { sans: ["Poppins", "sans-serif"] },
+                    colors: { primary: { 500: "#1E4A7A", 600: "#163a63" } },
+                },
+            },
+        };
+    </script>
+</head>
+
+<body class="bg-gray-50 min-h-screen font-sans flex text-gray-800">
+
+    <aside class="w-64 bg-white shadow-sm border-r flex flex-col h-screen sticky top-0 hidden md:flex">
+        <div class="p-6">
+            <h1 class="text-2xl font-bold text-primary-500">CampusCode</h1>
+        </div>
+        
+        <nav class="flex-1 px-4 space-y-2 mt-2">
+            <a href="{% url 'dashboard' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-home w-8 text-center"></i> Dashboard
+            </a>
+            <a href="{% url 'problems' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-code w-8 text-center"></i> Problems
+            </a>
+            <a href="{% url 'contests' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-trophy w-8 text-center"></i> Contests
+            </a>
+            <a href="{% url 'forum' %}" class="flex items-center p-3 rounded-lg text-gray-600 hover:bg-gray-100 transition">
+                <i class="fas fa-comments w-8 text-center"></i> Forum
+            </a>
+        </nav>
+
+        <div class="p-4 border-t">
+            <a href="{% url 'logout' %}" class="flex items-center p-3 rounded-lg text-red-500 hover:bg-red-50 transition w-full font-bold">
+                <i class="fas fa-sign-out-alt w-8 text-center"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        
+        <header class="bg-white shadow-sm px-8 py-4 flex justify-between items-center z-10">
+            <h2 class="text-xl font-bold text-gray-700">My Profile</h2>
+            
+            <div class="flex items-center gap-6">
+                <div class="relative cursor-pointer">
+                    <i class="far fa-bell text-xl text-gray-500"></i>
+                    <span class="absolute -top-1 -right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-white"></span>
+                </div>
+
+                <div class="flex items-center gap-3 cursor-pointer hover:opacity-80 transition" id="headerProfileBtn">
+                    <div class="text-right hidden sm:block">
+                        <p class="text-sm font-bold text-gray-800">{{ user.first_name }}</p>
+                        <p class="text-xs text-gray-500">{{ user.role }}</p>
+                    </div>
+                    <div class="h-10 w-10 rounded-full bg-primary-500 text-white flex items-center justify-center font-bold text-lg shadow-md border-2 border-white">
+                        {{ user.first_name|slice:":1"|upper }}
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50">
+            
+            {% if messages %}
+                <div class="mb-6 space-y-2">
+                    {% for message in messages %}
+                        <div class="p-4 rounded-xl border-l-4 shadow-sm bg-white flex items-center gap-3
+                            {% if message.tags == 'error' %} border-red-500 text-red-700
+                            {% else %} border-green-500 text-green-700 {% endif %}">
+                            <i class="fas {% if message.tags == 'error' %}fa-exclamation-circle{% else %}fa-check-circle{% endif %}"></i>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                
+                <div class="lg:col-span-1 space-y-6">
+                    <div class="bg-white rounded-2xl shadow-sm border p-6 text-center">
+                        <div class="relative inline-block">
+                            <div class="h-32 w-32 rounded-full bg-primary-500 text-white flex items-center justify-center text-5xl font-bold shadow-lg border-4 border-white mx-auto mb-4">
+                                {{ user.first_name|slice:":1"|upper }}
+                            </div>
+                            <div class="absolute bottom-4 right-0 bg-green-500 h-5 w-5 rounded-full border-2 border-white"></div>
+                        </div>
+                        
+                        <h2 class="text-xl font-bold text-gray-800">{{ user.first_name }} {{ user.last_name }}</h2>
+                        <p class="text-primary-500 font-bold text-sm mb-1">@{{ user.username }}</p>
+                        
+                        <div class="mt-4 flex justify-center gap-2">
+                            <span class="px-3 py-1 bg-blue-50 text-primary-500 text-xs font-bold rounded-full border border-blue-100">
+                                {{ user.role }}
+                            </span>
+                            <span class="px-3 py-1 bg-purple-50 text-purple-600 text-xs font-bold rounded-full border border-purple-100">
+                                Level {{ user.level }}
+                            </span>
+                        </div>
+
+                        <div class="mt-6 text-left">
+                            <div class="flex justify-between items-end mb-1">
+                                <span class="text-xs font-bold text-gray-500">XP Progress</span>
+                                <span class="text-xs font-bold text-primary-500">{{ user.xp }} / 2000</span>
+                            </div>
+                            <div class="w-full bg-gray-100 rounded-full h-2.5">
+                                <div class="bg-primary-500 h-2.5 rounded-full" style="width: {{ user.xp_percentage }}%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-2xl shadow-sm border p-0 overflow-hidden">
+                        <div class="grid grid-cols-2 divide-x divide-y border-b">
+                            <div class="p-4 text-center">
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Global Rank</p>
+                                <p class="text-xl font-bold text-gray-800 mt-1">#{{ user.global_rank }}</p>
+                            </div>
+                            <div class="p-4 text-center">
+                                <p class="text-xs text-gray-400 font-bold uppercase tracking-wider">Streak</p>
+                                <p class="text-xl font-bold text-orange-500 mt-1"><i class="fas fa-fire mr-1"></i>{{ user.streak }}</p>
+                            </div>
+                        </div>
+                        <div class="p-4 flex items-center justify-between hover:bg-gray-50 transition cursor-pointer">
+                            <div class="flex items-center gap-3">
+                                <div class="h-8 w-8 rounded-full bg-blue-100 text-primary-500 flex items-center justify-center">
+                                    <i class="fas fa-university text-xs"></i>
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-700">College Rank</p>
+                                    <p class="text-xs text-gray-500">CampusCode Institute</p>
+                                </div>
+                            </div>
+                            <span class="font-bold text-gray-800">#{{ user.college_rank }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-sm border overflow-hidden">
+                        <div class="border-b px-8 py-5 flex justify-between items-center bg-gray-50/50">
+                            <h3 class="font-bold text-gray-800 text-lg"><i class="fas fa-user-edit mr-2 text-primary-500"></i> Edit Profile</h3>
+                        </div>
+                        
+                        <div class="p-8">
+                            <form method="POST" action="{% url 'profile' %}">
+                                {% csrf_token %}
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">First Name</label>
+                                        <input type="text" name="first_name" value="{{ user.first_name }}" 
+                                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-700">
+                                    </div>
+                                    
+                                    <div>
+                                        <label class="block text-sm font-bold text-gray-700 mb-2">Last Name</label>
+                                        <input type="text" name="last_name" value="{{ user.last_name }}" 
+                                            class="w-full px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-700">
+                                    </div>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Username (Handle)</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                            <i class="fas fa-at"></i>
+                                        </span>
+                                        <input type="text" name="username" value="{{ user.username }}" required
+                                            class="w-full pl-10 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-700 bg-white">
+                                    </div>
+                                    <p class="text-xs text-blue-500 mt-1 ml-1">Username must be unique.</p>
+                                </div>
+
+                                <div class="mb-6">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">Email Address</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                            <i class="fas fa-envelope"></i>
+                                        </span>
+                                        <input type="email" value="{{ user.email }}" disabled readonly
+                                            class="w-full pl-10 px-4 py-2.5 rounded-lg border border-gray-200 bg-gray-100 text-gray-500 cursor-not-allowed">
+                                    </div>
+                                    <p class="text-xs text-gray-400 mt-1 ml-1">Email cannot be changed directly.</p>
+                                </div>
+
+                                <div class="mb-8">
+                                    <label class="block text-sm font-bold text-gray-700 mb-2">College / University</label>
+                                    <div class="relative">
+                                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-gray-400">
+                                            <i class="fas fa-university"></i>
+                                        </span>
+                                        <input type="text" name="college" value="{{ user.college }}" 
+                                            class="w-full pl-10 px-4 py-2.5 rounded-lg border border-gray-300 focus:ring-2 focus:ring-primary-500 focus:border-transparent outline-none transition text-gray-700">
+                                    </div>
+                                </div>
+
+                                <div class="flex items-center gap-4 pt-4 border-t">
+                                    <button type="submit" class="bg-primary-500 hover:bg-primary-600 text-white font-bold py-2.5 px-6 rounded-lg shadow-md transition transform active:scale-95">
+                                        Save Changes
+                                    </button>
+                                    <a href="{% url 'dashboard' %}" class="text-gray-500 font-medium hover:text-gray-700 transition">Cancel</a>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <div id="profileOverlay" class="fixed inset-0 bg-black/50 z-50 hidden flex justify-end">
+        <div class="bg-white w-full max-w-md h-full shadow-2xl p-6 flex flex-col transform transition-transform" id="profilePanel">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-bold text-gray-800">My Profile</h2>
+                <button id="closeProfileOverlay" class="h-10 w-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center">
+                    <i class="fas fa-times text-gray-600"></i>
+                </button>
+            </div>
+
+            <div class="flex flex-col items-center mb-8">
+                <div class="h-24 w-24 rounded-full bg-primary-500 text-white flex items-center justify-center text-3xl font-bold mb-4">
+                    {{ user.first_name|slice:":1"|upper }}
+                </div>
+                <h3 class="text-xl font-bold text-gray-900">{{ user.first_name }}</h3>
+                <p class="text-primary-500 font-medium mb-1">@{{ user.username }}</p>
+                <p class="text-gray-500 text-sm">{{ user.email }}</p>
+                <span class="mt-2 px-3 py-1 bg-blue-100 text-blue-600 text-xs font-bold rounded-full">{{ user.role }}</span>
+            </div>
+
+            <div class="space-y-2 flex-1">
+                <a href="{% url 'profile' %}" class="flex items-center gap-4 p-4 rounded-xl bg-gray-50 text-primary-500 border border-gray-100 transition">
+                    <i class="fas fa-user text-xl"></i>
+                    <span class="font-medium">Edit Profile</span>
+                </a>
+            </div>
+
+            <div class="border-t pt-6">
+                <a href="{% url 'logout' %}" class="flex items-center justify-center gap-2 w-full p-4 rounded-xl bg-red-50 text-red-600 hover:bg-red-600 hover:text-white transition font-bold">
+                    <i class="fas fa-sign-out-alt"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const btn = document.getElementById("headerProfileBtn");
+            const overlay = document.getElementById("profileOverlay");
+            const close = document.getElementById("closeProfileOverlay");
+
+            if(btn && overlay && close) {
+                // Open
+                btn.addEventListener("click", () => {
+                    overlay.classList.remove("hidden");
+                });
+                
+                // Close Button
+                close.addEventListener("click", () => {
+                    overlay.classList.add("hidden");
+                });
+
+                // Close on Outside Click
+                overlay.addEventListener("click", (e) => {
+                    if(e.target === overlay) {
+                        overlay.classList.add("hidden");
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

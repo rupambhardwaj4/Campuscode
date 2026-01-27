@@ -9,18 +9,25 @@ def index(request):
         return redirect('dashboard')
     return render(request, 'index.html')
 
+# views.py
+
 def signup_view(request):
     if request.method == 'POST':
+        # 1. Get data (No separate username field)
         name = request.POST.get('name')
         email = request.POST.get('email')
         password = request.POST.get('password')
 
+        # 2. Check if Email exists
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists.')
             return redirect('index')
 
+        # 3. Create User (Set username = email)
         user = User.objects.create_user(username=email, email=email, password=password)
         user.first_name = name 
+        
+        # 4. Set Default Stats
         user.role = 'Student'
         user.streak = 1
         user.global_rank = 9999
@@ -28,25 +35,40 @@ def signup_view(request):
         user.xp = 10
         user.save()
 
+        # 5. Log them in
         login(request, user)
         return redirect('dashboard')
+    
     return redirect('index')
 
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         password = request.POST.get('password')
-        user = authenticate(request, username=email, password=password)
         
-        if user is not None:
-            login(request, user)
-            if getattr(user, 'role', None) == 'Admin' or 'admin':
-                return redirect('admin_dashboard')
-            else:
+        # 1. Find the user with this email first
+        try:
+            # We filter by email to find the User object
+            user_obj = User.objects.get(email=email)
+            
+            # 2. Use that user's ACTUAL username to authenticate
+            user = authenticate(request, username=user_obj.username, password=password)
+            
+            if user is not None:
+                login(request, user)
+                
+                # 3. Check Role
+                if getattr(user, 'role', 'Student') == 'Admin':
+                    return redirect('admin_dashboard')
                 return redirect('dashboard')
-        else:
-            messages.error(request, 'Invalid credentials.')
-            return redirect('index')
+            else:
+                messages.error(request, 'Invalid password.')
+        
+        except User.DoesNotExist:
+            messages.error(request, 'No account found with this email.')
+        except User.MultipleObjectsReturned:
+            messages.error(request, 'Multiple accounts found with this email. Please contact support.')
+            
     return redirect('index')
 
 def logout_view(request):
@@ -82,10 +104,32 @@ def forum(request):
     posts = ForumPost.objects.order_by('-date_posted')
     return render(request, 'forum.html', {'posts': posts})
 
+# views.py
 @login_required
 def profile(request):
-    return render(request, 'profile.html')
+    if request.method == 'POST':
+        user = request.user
+        new_username = request.POST.get('username')
+        
+        # Check uniqueness if username changed
+        if new_username and new_username != user.username:
+            if User.objects.filter(username=new_username).exists():
+                messages.error(request, 'That username is already taken.')
+                return redirect('profile')
+            user.username = new_username
 
+        # Standard fields
+        user.first_name = request.POST.get('first_name')
+        user.last_name = request.POST.get('last_name')
+        user.college = request.POST.get('college')
+        user.save()
+        
+        messages.success(request, 'Profile updated successfully!')
+        return redirect('profile')
+        
+    return render(request, 'profile.html')
+        
+    return render(request, 'profile.html')
 @login_required
 def stats(request):
     return render(request, 'report.html')

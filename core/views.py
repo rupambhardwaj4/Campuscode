@@ -25,7 +25,7 @@ def signup_view(request):
         user.streak = 1
         user.global_rank = 9999
         user.college_rank = 500
-        user.xp = 100
+        user.xp = 10
         user.save()
 
         login(request, user)
@@ -40,9 +40,10 @@ def login_view(request):
         
         if user is not None:
             login(request, user)
-            if user.role == 'Admin':
+            if getattr(user, 'role', None) == 'Admin' or 'admin':
                 return redirect('admin_dashboard')
-            return redirect('dashboard')
+            else:
+                return redirect('dashboard')
         else:
             messages.error(request, 'Invalid credentials.')
             return redirect('index')

@@ -163,7 +163,3 @@ class ForumVote(models.Model):
     
     def __str__(self):
         return f"{self.user.username} voted {self.value}"
-
-
-    def __str__(self):
-        return self.title
